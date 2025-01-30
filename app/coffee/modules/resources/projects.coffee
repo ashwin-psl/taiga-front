@@ -14,7 +14,14 @@ resourceProvider = ($config, $repo, $http, $urls, $auth, $q, $translate) ->
     service = {}
 
     service.get = (projectId) ->
-        return $repo.queryOne("projects", projectId)
+        test = $repo.queryOne("projects", projectId)
+        test.then (data) ->
+            isAdmin = data.i_am_admin
+            window.localStorage.setItem('isAdmin', isAdmin)
+            if !isAdmin
+                data.us_statuses = data.us_statuses.filter((status) -> !["Done", "To Be Released"].includes(status.name))
+                data.task_statuses = data.task_statuses.filter((status) -> !["Done", "To Be Released"].includes(status.name))
+        return test
 
     service.getBySlug = (projectSlug) ->
         return $repo.queryOne("projects", "by_slug?slug=#{projectSlug}")

@@ -37,7 +37,12 @@ resourceProvider = ($repo, $http, $urls, $storage) ->
         return $repo.queryMany("tasks", filters)
 
     service.filtersData = (params) ->
-        return $repo.queryOneRaw("task-filters", null, params)
+        test = $repo.queryOneRaw("task-filters", null, params)
+        test.then (data) ->
+            isAdmin = JSON.parse(window.localStorage.getItem('isAdmin'))
+            if !isAdmin
+                data.statuses = data.statuses.filter((status) -> !["Done", "To Be Released"].includes(status.name))
+        return test
 
     service.list = (projectId, sprintId=null, userStoryId=null, params) ->
         params = _.merge(params, {project: projectId, order_by: 'us_order'})

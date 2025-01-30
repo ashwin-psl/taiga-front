@@ -67,7 +67,12 @@ resourceProvider = ($repo, $http, $urls, $storage, $q) ->
         return $repo.queryOneRaw("projects", "#{projectId}/issues_stats")
 
     service.filtersData = (params) ->
-        return $repo.queryOneRaw("issues-filters", null, params)
+        test = $repo.queryOneRaw("issues-filters", null, params)
+        test.then (data) ->
+            isAdmin = JSON.parse(window.localStorage.getItem('isAdmin'))
+            if !isAdmin
+                data.statuses = data.statuses.filter((status) -> !["Done", "To Be Released"].includes(status.name))
+        return test
 
     service.listValues = (projectId, type) ->
         params = {"project": projectId}

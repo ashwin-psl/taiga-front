@@ -54,6 +54,11 @@ Resource = (urlsService, http, paginateResponseService) ->
 
         return http.get(url)
             .then (result) ->
+                isAdmin = result.data.i_am_admin
+                window.localStorage.setItem('isAdmin', isAdmin)
+                if !isAdmin
+                    result.data.us_statuses = result.data.us_statuses.filter((status) -> !["Done", "To Be Released"].includes(status.name))
+                    result.data.task_statuses = result.data.task_statuses.filter((status) -> !["Done", "To Be Released"].includes(status.name))
                 return Immutable.fromJS(result.data)
 
     service.getProjectsByUserId = (userId, paginate=false) ->

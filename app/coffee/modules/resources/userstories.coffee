@@ -40,7 +40,12 @@ resourceProvider = ($repo, $http, $urls, $storage, $q) ->
         return $repo.queryMany("userstories", filters)
 
     service.filtersData = (params) ->
-        return $repo.queryOneRaw("userstories-filters", null, params)
+        test = $repo.queryOneRaw("userstories-filters", null, params)
+        test.then (data) ->
+            isAdmin = JSON.parse(window.localStorage.getItem('isAdmin'))
+            if !isAdmin
+                data.statuses = data.statuses.filter((status) -> !["Done", "To Be Released"].includes(status.name))
+        return test
 
     service.listUnassigned = (projectId, filters, pageSize, store = true) ->
         params = {"project": projectId, "milestone": "null"}
